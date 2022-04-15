@@ -2097,7 +2097,8 @@ void ReplicaImp::onCommitCombinedSigSucceeded(SeqNum seqNumber,
       (seqNumber > lastExecutedSeqNum + config_.getconcurrencyLevel() + activeExecutions_);
 
   auto span = concordUtils::startChildSpanFromContext(
-      commitFull->spanContext<std::remove_pointer<decltype(commitFull)>::type>(), "bft_execute_committed_reqs");
+      commitFull->spanContext<std::remove_pointer<decltype(commitFull)>::type>(),
+      "bft_handle_combined_sig_succeeded_message");
   updateCommitMetrics(CommitPath::SLOW);
   startExecution(seqNumber, span, askForMissingInfoAboutCommittedItems);
 }
@@ -2144,9 +2145,8 @@ void ReplicaImp::onCommitVerifyCombinedSigResult(SeqNum seqNumber, ViewNum view,
   LOG_INFO(CNSUS, "Request committed, proceeding to try to execute" << KVLOG(view));
 
   auto span = concordUtils::startChildSpanFromContext(
-      commitFull->spanContext<std::remove_pointer<decltype(commitFull)>::type>(), "bft_execute_committed_reqs");
-  bool askForMissingInfoAboutCommittedItems =
-      (seqNumber > lastExecutedSeqNum + config_.getconcurrencyLevel() + activeExecutions_);
+      commitFull->spanContext<std::remove_pointer<decltype(commitFull)>::type>(),
+      "bft_handle_verify_combined_sig_message");
   updateCommitMetrics(CommitPath::SLOW);
   startExecution(seqNumber, span, askForMissingInfoAboutCommittedItems);
 }
@@ -2203,7 +2203,7 @@ void ReplicaImp::onFastPathCommitCombinedSigSucceeded(SeqNum seqNumber,
        lastExecutedSeqNum + config_.getconcurrencyLevel() + activeExecutions_);  // TODO(GG): check/improve this logic
 
   auto span = concordUtils::startChildSpanFromContext(fcp->spanContext<std::remove_pointer<decltype(fcp)>::type>(),
-                                                      "bft_execute_committed_reqs");
+                                                      "bft_handle_fast_path_commit_combined_sig_succeeded");
 
   updateCommitMetrics(cPath);
 
@@ -2268,7 +2268,7 @@ void ReplicaImp::onFastPathCommitVerifyCombinedSigResult(SeqNum seqNumber,
        lastExecutedSeqNum + config_.getconcurrencyLevel() + activeExecutions_);  // TODO(GG): check/improve this logic
 
   auto span = concordUtils::startChildSpanFromContext(fcp->spanContext<std::remove_pointer<decltype(fcp)>::type>(),
-                                                      "bft_execute_committed_reqs");
+                                                      "bft_handle_fast_path_commit_verify_combined_sig_result");
 
   updateCommitMetrics(cPath);
 
